@@ -566,14 +566,15 @@ async function handleCpapUpload(event) {
         })
       });
       const data = await resp.json();
-      const text = data.content?.find(b=>b.type==='text')?.text || 'Could not read data.';
+      if(data.error) { result.textContent='API Error: '+data.error.type+' — '+data.error.message; result.className='ai-result'; return; }
+      const text = data.content?.find(b=>b.type==='text')?.text || ('No text in response: '+JSON.stringify(data).substring(0,200));
       result.textContent=text; result.className='ai-result';
       S.cpapLogs.unshift({date:todayKey(), data:text, timestamp:new Date().toLocaleTimeString()});
       persist('cpapLogs');
       renderCpapHistory();
       renderDash();
       toast('CPAP data saved');
-    } catch(err) { result.textContent='Error reading image.'; result.className='ai-result'; }
+    } catch(err) { result.textContent='Fetch error: '+err.message; result.className='ai-result'; }
   };
   reader.readAsDataURL(file);
 }
@@ -609,14 +610,15 @@ async function handleFitbitUpload(event) {
         })
       });
       const data = await resp.json();
-      const text = data.content?.find(b=>b.type==='text')?.text || 'Could not read data.';
+      if(data.error) { result.textContent='API Error: '+data.error.type+' — '+data.error.message; result.className='ai-result'; return; }
+      const text = data.content?.find(b=>b.type==='text')?.text || ('No text in response: '+JSON.stringify(data).substring(0,200));
       result.textContent=text; result.className='ai-result';
       S.fitbitLogs.unshift({date:todayKey(), data:text, timestamp:new Date().toLocaleTimeString()});
       persist('fitbitLogs');
       renderFitbitHistory();
       renderDash();
       toast('Fitbit data saved');
-    } catch(err) { result.textContent='Error reading image.'; result.className='ai-result'; }
+    } catch(err) { result.textContent='Fetch error: '+err.message; result.className='ai-result'; }
   };
   reader.readAsDataURL(file);
 }
