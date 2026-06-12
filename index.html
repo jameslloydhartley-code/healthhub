@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1a73e8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Health Hub">
+<title>Health Hub</title>
+<style>
+:root {
+  --primary: #1a73e8;
+  --primary-light: #e8f0fe;
+  --primary-dark: #1557b0;
+  --success: #1e8e3e;
+  --success-light: #e6f4ea;
+  --warning: #f29900;
+  --warning-light: #fef7e0;
+  --danger: #c5221f;
+  --danger-light: #fce8e6;
+  --purple-light: #f3f0ff;
+  --purple: #5f4bb6;
+  --pink-light: #fce4ec;
+  --pink: #880e4f;
+  --teal-light: #e0f2f1;
+  --teal: #00695c;
+  --text: #202124;
+  --text-secondary: #5f6368;
+  --text-hint: #9aa0a6;
+  --border: #e0e0e0;
+  --surface: #f8f9fa;
+  --card: #ffffff;
+  --bg: #f1f3f4;
+  --nav-height: 56px;
+  --bottom-nav: 64px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Google Sans', Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: var(--bottom-nav); }
+.top-bar { background: var(--primary); color: white; height: var(--nav-height); display: flex; align-items: center; padding: 0 16px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.top-bar h1 { font-size: 20px; font-weight: 500; flex: 1; }
+.top-bar-date { font-size: 13px; opacity: 0.85; }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--bottom-nav); background: white; border-top: 1px solid var(--border); display: flex; z-index: 100; box-shadow: 0 -2px 8px rgba(0,0,0,0.08); }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; padding: 6px 4px; border: none; background: none; color: var(--text-secondary); font-size: 10px; font-family: inherit; transition: color 0.15s; }
+.nav-item.active { color: var(--primary); }
+.nav-item svg { width: 22px; height: 22px; }
+.page { display: none; padding: 12px; }
+.page.active { display: block; }
+.card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.card-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+.section-label { font-size: 11px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 0 4px; margin-top: 4px; border-top: 1px solid var(--border); }
+.section-label:first-child { border-top: none; margin-top: 0; }
+.med-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+.med-row:last-child { border-bottom: none; }
+.med-check { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; background: white; }
+.med-check.done { background: var(--success); border-color: var(--success); }
+.med-check.done svg { display: block; }
+.med-check svg { display: none; width: 14px; height: 14px; fill: white; }
+.med-info { flex: 1; }
+.med-name { font-size: 15px; font-weight: 500; color: var(--text); }
+.med-name.done { text-decoration: line-through; color: var(--text-hint); }
+.med-detail { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+.chip { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+.chip-evening { background: var(--purple-light); color: var(--purple); }
+.chip-late { background: var(--pink-light); color: var(--pink); }
+.chip-morning { background: var(--teal-light); color: var(--teal); }
+.chip-topical { background: var(--warning-light); color: #7b5800; }
+.chip-nhs { background: var(--primary-light); color: var(--primary-dark); margin-left: 4px; }
+.chip-specialist { background: var(--pink-light); color: var(--pink); margin-left: 4px; }
+.progress-wrap { margin: 8px 0 4px; }
+.progress-bar { height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; background: var(--success); transition: width 0.4s; }
+.progress-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.stat-card { background: var(--card); border-radius: 12px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+.stat-value { font-size: 24px; font-weight: 600; color: var(--text); }
+.stat-unit { font-size: 13px; font-weight: 400; color: var(--text-secondary); }
+.alert { border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 10px; font-size: 14px; line-height: 1.5; }
+.alert svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+.alert-warning { background: var(--warning-light); color: #7b5800; }
+.alert-warning svg { fill: var(--warning); }
+.alert-danger { background: var(--danger-light); color: var(--danger); }
+.alert-danger svg { fill: var(--danger); }
+.alert-info { background: var(--primary-light); color: var(--primary-dark); }
+.alert-info svg { fill: var(--primary); }
+.alert-success { background: var(--success-light); color: var(--success); }
+.alert-success svg { fill: var(--success); }
+.upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 28px 16px; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 12px; }
+.upload-zone:active { background: var(--surface); }
+.upload-zone svg { width: 40px; height: 40px; fill: var(--text-hint); margin-bottom: 8px; }
+.upload-zone p { font-size: 14px; color: var(--text-secondary); }
+.upload-zone small { font-size: 12px; color: var(--text-hint); }
+input[type=file] { display: none; }
+.ai-result { background: var(--surface); border-radius: 10px; padding: 14px; font-size: 13px; color: var(--text); line-height: 1.7; white-space: pre-wrap; border: 1px solid var(--border); }
+.ai-result.loading { color: var(--text-secondary); font-style: italic; }
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; display: block; }
+input[type=text], input[type=email], input[type=date], input[type=tel], textarea, select {
+  width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px;
+  font-size: 15px; background: white; color: var(--text); font-family: inherit;
+  appearance: none; -webkit-appearance: none; outline: none;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--primary); }
+textarea { resize: vertical; min-height: 80px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; border: none; font-family: inherit; transition: all 0.15s; width: 100%; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--primary); color: white; }
+.btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.btn-danger { background: var(--danger-light); color: var(--danger); }
+.btn svg { width: 18px; height: 18px; fill: currentColor; }
+.btn-row { display: flex; gap: 8px; margin-top: 12px; }
+.btn-row .btn { flex: 1; }
+.spec-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+.spec-row:last-child { border-bottom: none; }
+.spec-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--primary-dark); flex-shrink: 0; }
+.spec-info { flex: 1; }
+.spec-name { font-size: 15px; font-weight: 500; }
+.spec-detail { font-size: 12px; color: var(--text-secondary); }
+.icon-btn { width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.icon-btn svg { width: 16px; height: 16px; fill: var(--text-secondary); }
+.nhs-entry { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+.nhs-entry:last-child { border-bottom: none; }
+.nhs-entry-name { font-size: 15px; font-weight: 500; }
+.nhs-entry-detail { font-size: 12px; color: var(--text-secondary); }
+.status-pill { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 10px; white-space: nowrap; }
+.status-ok { background: var(--success-light); color: var(--success); }
+.status-soon { background: var(--warning-light); color: #7b5800; }
+.status-overdue { background: var(--danger-light); color: var(--danger); }
+.profile-field { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+.profile-field:last-child { border-bottom: none; }
+.profile-field-label { color: var(--text-secondary); font-size: 13px; }
+.profile-field-value { font-weight: 500; color: var(--text); text-align: right; font-size: 13px; max-width: 60%; }
+.streak-row { display: flex; gap: 4px; margin-top: 10px; }
+.streak-dot { width: 20px; height: 20px; border-radius: 4px; background: #e0e0e0; }
+.streak-dot.done { background: var(--success); }
+.streak-dot.today { border: 2px solid var(--success); background: white; }
+.img-preview { max-width: 100%; border-radius: 10px; margin-bottom: 12px; display: block; }
+.history-item { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+.history-item:last-child { border-bottom: none; }
+.history-date { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.history-data { font-size: 13px; color: var(--text); white-space: pre-wrap; }
+.fab { position: fixed; bottom: calc(var(--bottom-nav) + 16px); right: 16px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: white; border: none; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(26,115,232,0.4); cursor: pointer; z-index: 99; }
+.fab svg { width: 24px; height: 24px; fill: white; }
+.divider { height: 1px; background: var(--border); margin: 12px 0; }
+.empty-state { text-align: center; padding: 32px 16px; color: var(--text-secondary); font-size: 14px; }
+.empty-state svg { width: 48px; height: 48px; fill: var(--border); margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto; }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235f6368' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+.saved-toast { position: fixed; bottom: calc(var(--bottom-nav) + 12px); left: 50%; transform: translateX(-50%); background: #323232; color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; z-index: 200; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+.saved-toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>Health Hub</h1>
+  <span class="top-bar-date" id="top-date"></span>
+</div>
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page active">
+  <div id="dash-alerts"></div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Meds today</div><div class="stat-value" id="dash-done">0<span class="stat-unit">/10</span></div></div>
+    <div class="stat-card"><div class="stat-label">Next NHS order</div><div class="stat-value" style="font-size:17px;padding-top:4px">27 Jul</div></div>
+    <div class="stat-card"><div class="stat-label">CPAP last night</div><div class="stat-value" id="dash-cpap" style="font-size:17px;padding-top:4px">—</div></div>
+    <div class="stat-card"><div class="stat-label">Fitbit last sync</div><div class="stat-value" id="dash-fitbit" style="font-size:17px;padding-top:4px">—</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Today's progress</div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="dash-progress" style="width:0%"></div></div>
+      <div class="progress-label" id="dash-progress-label">0 of 10 taken</div>
+    </div>
+    <div class="streak-row" id="dash-streak"></div>
+  </div>
+</div>
+
+<!-- MEDICATIONS -->
+<div id="page-meds" class="page">
+  <div class="card">
+    <div class="card-title">Morning — daytime</div>
+    <div id="morning-meds"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Evening</div>
+    <div class="section-label">8:00 pm</div>
+    <div id="evening8-meds"></div>
+    <div class="section-label">10:00 pm</div>
+    <div id="evening10-meds"></div>
+  </div>
+  <button class="btn btn-secondary" onclick="sendGmailReminder('8pm')" style="margin-bottom:8px">
+    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    Gmail reminder — 8:00 pm meds
+  </button>
+  <button class="btn btn-secondary" onclick="sendGmailReminder('10pm')">
+    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    Gmail reminder — 10:00 pm meds
+  </button>
+</div>
+
+<!-- CPAP -->
+<div id="page-cpap" class="page">
+  <div class="card">
+    <div class="card-title">Upload ResMed myAir screenshot</div>
+    <div class="upload-zone" onclick="document.getElementById('cpap-file').click()">
+      <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+      <p>Upload myAir screenshot</p>
+      <small>AI reads sleep score, AHI, hours, mask seal & more</small>
+    </div>
+    <input type="file" id="cpap-file" accept="image/*" onchange="handleCpapUpload(event)">
+    <div id="cpap-preview" style="display:none">
+      <img id="cpap-img" class="img-preview">
+      <div class="card-title">Extracted data</div>
+      <div class="ai-result" id="cpap-ai-result"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Sleep history</div>
+    <div id="cpap-history"><div class="empty-state"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>No logs yet — upload a screenshot above.</div></div>
+  </div>
+</div>
+
+<!-- FITBIT -->
+<div id="page-fitbit" class="page">
+  <div class="card">
+    <div class="card-title">Upload Fitbit screenshot</div>
+    <div class="upload-zone" onclick="document.getElementById('fitbit-file').click()">
+      <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+      <p>Upload Fitbit screenshot</p>
+      <small>AI reads steps, heart rate, sleep, SpO2, HRV & more</small>
+    </div>
+    <input type="file" id="fitbit-file" accept="image/*" onchange="handleFitbitUpload(event)">
+    <div id="fitbit-preview" style="display:none">
+      <img id="fitbit-img" class="img-preview">
+      <div class="card-title">Extracted data</div>
+      <div class="ai-result" id="fitbit-ai-result"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Reading history</div>
+    <div id="fitbit-history"><div class="empty-state"><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>No readings yet — upload a screenshot above.</div></div>
+  </div>
+</div>
+
+<!-- SPECIALISTS -->
+<div id="page-specialists" class="page">
+  <div class="card">
+    <div class="card-title">Email agent</div>
+    <div id="spec-profile-warn" class="alert alert-warning" style="display:none">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      Add your patient details in "My details" tab so they appear in emails automatically.
+    </div>
+    <div id="spec-profile-summary" style="display:none;margin-bottom:12px;background:var(--surface);border-radius:10px;padding:12px;border:1px solid var(--border);font-size:13px;"></div>
+    <div class="form-group"><label class="form-label">Select specialist</label><select id="email-spec-select"><option value="">— choose specialist —</option></select></div>
+    <div class="form-group"><label class="form-label">Request type</label>
+      <select id="email-type">
+        <option>Clonazepam prescription renewal</option>
+        <option>Request next appointment date</option>
+        <option>Medication review</option>
+        <option>Results follow-up</option>
+        <option>Referral request</option>
+        <option>Custom message</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Additional details (optional)</label><textarea id="email-extra" placeholder="Anything specific to include in the email"></textarea></div>
+    <button class="btn btn-primary" onclick="draftEmail()">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+      Draft email with AI
+    </button>
+    <div id="email-draft-area" style="display:none;margin-top:14px">
+      <div class="card-title">Drafted email</div>
+      <div class="ai-result" id="email-draft-content"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="openGmail()">Open in Gmail</button>
+        <button class="btn btn-secondary" onclick="copyEmail()">Copy</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Your specialists</div>
+    <div id="specialists-list"><div class="empty-state">No specialists added yet.</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Add a specialist</div>
+    <div class="form-group"><label class="form-label">Name & role</label><input type="text" id="spec-name" placeholder="e.g. Dr Mascareno Ponte — Neurologist"></div>
+    <div class="form-group"><label class="form-label">Email</label><input type="email" id="spec-email" placeholder="specialist@mft.nhs.uk"></div>
+    <div class="form-group"><label class="form-label">Next appointment</label><input type="date" id="spec-date"></div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea id="spec-notes" placeholder="e.g. Clonazepam prescription renewal needed"></textarea></div>
+    <button class="btn btn-primary" onclick="addSpecialist()">
+      <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+      Add specialist
+    </button>
+  </div>
+</div>
+
+<!-- NHS -->
+<div id="page-nhs" class="page">
+  <div class="card">
+    <div class="card-title">Upcoming reorders</div>
+    <div id="nhs-list"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Check what's due today</div>
+    <button class="btn btn-primary" onclick="checkDue()" style="margin-bottom:10px">
+      <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+      Check due today
+    </button>
+    <div id="nhs-due-result"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Add medication request date</div>
+    <div class="form-group"><label class="form-label">Medication</label><input type="text" id="nhs-med-name" placeholder="e.g. Citalopram"></div>
+    <div class="form-group"><label class="form-label">Reorder date</label><input type="date" id="nhs-date"></div>
+    <div class="form-group"><label class="form-label">Supply details</label><input type="text" id="nhs-qty" placeholder="e.g. 56 days supply"></div>
+    <button class="btn btn-primary" onclick="addNhs()">
+      <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+      Add
+    </button>
+  </div>
+  <div class="card">
+    <div class="card-title">Backup & restore</div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">Export all your data to keep a backup, or restore from a previous export.</p>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="exportData()">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        Export backup
+      </button>
+      <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">
+        <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+        Import backup
+      </button>
+    </div>
+    <input type="file" id="import-file" accept=".json" onchange="importData(event)">
+  </div>
+</div>
+
+<!-- MY DETAILS -->
+<div id="page-profile" class="page">
+  <div class="alert alert-info">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+    Stored only on this device. Included automatically in specialist emails.
+  </div>
+  <div class="card">
+    <div class="card-title">Patient information</div>
+    <div class="form-group"><label class="form-label">Full name</label><input type="text" id="p-name" placeholder="Your full name"></div>
+    <div class="form-group"><label class="form-label">Date of birth</label><input type="date" id="p-dob"></div>
+    <div class="form-group"><label class="form-label">NHS number</label><input type="tel" id="p-nhs" placeholder="e.g. 485 777 3456"></div>
+    <div class="form-group"><label class="form-label">Address line 1</label><input type="text" id="p-addr1" placeholder="House number and street"></div>
+    <div class="form-group"><label class="form-label">Address line 2 (optional)</label><input type="text" id="p-addr2" placeholder="Area or district"></div>
+    <div class="form-group"><label class="form-label">City</label><input type="text" id="p-city" placeholder="e.g. Manchester"></div>
+    <div class="form-group"><label class="form-label">Postcode</label><input type="text" id="p-postcode" placeholder="e.g. M23 9AB"></div>
+    <div class="form-group"><label class="form-label">Phone number</label><input type="tel" id="p-phone" placeholder="e.g. 07700 900000"></div>
+    <button class="btn btn-primary" onclick="saveProfile()">
+      <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+      Save my details
+    </button>
+  </div>
+  <div class="card" id="profile-preview-card" style="display:none">
+    <div class="card-title">Saved details</div>
+    <div id="profile-preview"></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showPage('dashboard',this)">
+    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+    Dashboard
+  </button>
+  <button class="nav-item" onclick="showPage('meds',this)">
+    <svg viewBox="0 0 24 24"><path d="M6.5 10h-2v5h2v-5zm4 0h-2v5h2v-5zm8.5 7H4v2h15v-2zm-4.5-7h-2v5h2v-5zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg>
+    Meds
+  </button>
+  <button class="nav-item" onclick="showPage('cpap',this)">
+    <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+    CPAP
+  </button>
+  <button class="nav-item" onclick="showPage('fitbit',this)">
+    <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+    Fitbit
+  </button>
+  <button class="nav-item" onclick="showPage('specialists',this)">
+    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    Email
+  </button>
+  <button class="nav-item" onclick="showPage('nhs',this)">
+    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+    NHS
+  </button>
+  <button class="nav-item" onclick="showPage('profile',this)">
+    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+    Me
+  </button>
+</nav>
+
+<div class="saved-toast" id="toast"></div>
+
+<script>
+const MEDS = {
+  morning: [
+    { id:'lansoprazole', name:'Lansoprazole', dose:'1 capsule', nhs:true },
+    { id:'iron', name:'Iron', dose:'1 tablet', nhs:true },
+    { id:'citalopram', name:'Citalopram', dose:'2 tablets', nhs:true },
+    { id:'vitd', name:'Adcal (Vitamin D)', dose:'1 tablet', nhs:true },
+    { id:'vitc', name:'Vitamin C', dose:'1 tablet' },
+    { id:'multivit', name:'Multivitamins', dose:'1 tablet' },
+  ],
+  evening8: [
+    { id:'testosterone', name:'Topical Testosterone', dose:'apply once', topical:true, nhs:true },
+  ],
+  evening10: [
+    { id:'melatonin', name:'Melatonin', dose:'5 tablets (10mg)', specialist:true },
+    { id:'clonazepam', name:'Clonazepam', dose:'3 tablets (1.5mg)', specialist:true },
+  ]
+};
+
+const NHS_DEFAULTS = [
+  { id:1, med:'Citalopram', date:'2026-07-27', qty:'56 days supply' },
+  { id:2, med:'Adcal (Vitamin D)', date:'2026-07-27', qty:'56 days supply' },
+  { id:3, med:'Iron', date:'2026-07-27', qty:'56 days supply' },
+  { id:4, med:'Lansoprazole', date:'2026-07-27', qty:'56 days supply' },
+  { id:5, med:'Topical Testosterone', date:'2026-07-27', qty:'112 units / 56 days' },
+  { id:6, med:'Clonazepam', date:'2026-08-25', qty:'270 tablets / 90 days — ⚠️ Rx expired, needs renewal' },
+  { id:7, med:'Melatonin', date:'2027-01-17', qty:'450 tablets / 225 days' },
+];
+
+const todayKey = () => new Date().toISOString().split('T')[0];
+
+let S = {
+  taken:{}, cpapLogs:[], fitbitLogs:[], specialists:[],
+  nhsEntries:[...NHS_DEFAULTS],
+  profile:{name:'',dob:'',nhs:'',addr1:'',addr2:'',city:'',postcode:'',phone:''},
+  streak: [true,true,true,true,true,true,false]
+};
+
+function load() {
+  ['taken','cpapLogs','fitbitLogs','specialists','nhsEntries','profile','streak'].forEach(k => {
+    try { const v = localStorage.getItem('hh_'+k); if(v) S[k] = JSON.parse(v); } catch(e){}
+  });
+  if(!S.nhsEntries || !S.nhsEntries.length) S.nhsEntries = [...NHS_DEFAULTS];
+}
+
+function persist(k) { try { localStorage.setItem('hh_'+k, JSON.stringify(S[k])); } catch(e){} }
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(id==='meds') renderMeds();
+  if(id==='specialists') { renderSpecialists(); renderProfileSummary(); }
+  if(id==='nhs') renderNhs();
+  if(id==='cpap') renderCpapHistory();
+  if(id==='fitbit') renderFitbitHistory();
+  if(id==='profile') loadProfileForm();
+  if(id==='dashboard') renderDash();
+}
+
+function totalMeds() { return MEDS.morning.length + MEDS.evening8.length + MEDS.evening10.length; }
+
+function renderDash() {
+  const today = todayKey();
+  const taken = S.taken[today] || {};
+  const done = Object.values(taken).filter(Boolean).length;
+  const total = totalMeds();
+  const pct = Math.round((done/total)*100);
+  document.getElementById('dash-done').innerHTML = done + '<span class="stat-unit">/'+total+'</span>';
+  document.getElementById('dash-progress').style.width = pct+'%';
+  document.getElementById('dash-progress-label').textContent = done+' of '+total+' taken';
+  const lastCpap = S.cpapLogs[0];
+  document.getElementById('dash-cpap').textContent = lastCpap ? lastCpap.hours+'h' : '—';
+  const lastFitbit = S.fitbitLogs[0];
+  document.getElementById('dash-fitbit').textContent = lastFitbit ? lastFitbit.date.slice(5) : '—';
+  const streakEl = document.getElementById('dash-streak');
+  streakEl.innerHTML = '';
+  S.streak.forEach((d,i) => {
+    const dot = document.createElement('div');
+    dot.className = 'streak-dot' + (i===6?' today':d?' done':'');
+    streakEl.appendChild(dot);
+  });
+  const alerts = document.getElementById('dash-alerts');
+  alerts.innerHTML = '';
+  alerts.innerHTML += `<div class="alert alert-danger"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg><div><strong>Clonazepam Rx expired</strong> — Contact Dr Mascareno Ponte, Wythenshawe Hospital to renew before 25 Aug 2026. Call pharmacy: 0161 945 1978</div></div>`;
+  alerts.innerHTML += `<div class="alert alert-warning"><svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg><div>8:00 pm — Topical Testosterone &nbsp;·&nbsp; 10:00 pm — Melatonin, Clonazepam</div></div>`;
+}
+
+function makeMedRow(med, session) {
+  const today = todayKey();
+  const taken = (S.taken[today] || {})[med.id];
+  const chipClass = med.topical?'chip-topical':session==='morning'?'chip-morning':session==='evening8'?'chip-evening':'chip-late';
+  const chipLabel = session==='morning'?'Morning':session==='evening8'?'8pm':'10pm';
+  const nhsChip = med.nhs ? '<span class="chip chip-nhs">NHS</span>' : '';
+  const specChip = med.specialist ? '<span class="chip chip-specialist">Specialist</span>' : '';
+  return `<div class="med-row">
+    <div class="med-check ${taken?'done':''}" onclick="toggleMed('${med.id}')" role="checkbox" aria-checked="${taken?'true':'false'}" aria-label="${med.name}">
+      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    </div>
+    <div class="med-info">
+      <div class="med-name ${taken?'done':''}">${med.name}${nhsChip}${specChip}</div>
+      <div class="med-detail">${med.dose}</div>
+    </div>
+    <span class="chip ${chipClass}">${chipLabel}</span>
+  </div>`;
+}
+
+function renderMeds() {
+  document.getElementById('morning-meds').innerHTML = MEDS.morning.map(m=>makeMedRow(m,'morning')).join('');
+  document.getElementById('evening8-meds').innerHTML = MEDS.evening8.map(m=>makeMedRow(m,'evening8')).join('');
+  document.getElementById('evening10-meds').innerHTML = MEDS.evening10.map(m=>makeMedRow(m,'evening10')).join('');
+}
+
+function toggleMed(id) {
+  const today = todayKey();
+  if(!S.taken[today]) S.taken[today]={};
+  S.taken[today][id] = !S.taken[today][id];
+  persist('taken');
+  renderMeds();
+  renderDash();
+}
+
+async function handleCpapUpload(event) {
+  const file = event.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result.split(',')[1];
+    document.getElementById('cpap-img').src = e.target.result;
+    document.getElementById('cpap-preview').style.display='block';
+    const result = document.getElementById('cpap-ai-result');
+    result.textContent='Reading your ResMed myAir data...';
+    result.className='ai-result loading';
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1000,
+          messages:[{role:'user',content:[
+            {type:'image',source:{type:'base64',media_type:file.type,data:base64}},
+            {type:'text',text:'This is a ResMed myAir CPAP app screenshot. Extract ALL visible data — sleep score, hours used, AHI (events per hour), mask seal %, total events, obstructive apneas, hypopneas, mask leak, pressure settings, anything visible. Format clearly with labels and values. If it is not a CPAP screenshot, say so politely.'}
+          ]}]
+        })
+      });
+      const data = await resp.json();
+      const text = data.content?.find(b=>b.type==='text')?.text || 'Could not read data.';
+      result.textContent=text; result.className='ai-result';
+      S.cpapLogs.unshift({date:todayKey(), data:text, timestamp:new Date().toLocaleTimeString()});
+      persist('cpapLogs');
+      renderCpapHistory();
+      renderDash();
+      toast('CPAP data saved');
+    } catch(err) { result.textContent='Error reading image.'; result.className='ai-result'; }
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderCpapHistory() {
+  const el = document.getElementById('cpap-history');
+  if(!S.cpapLogs.length){el.innerHTML='<div class="empty-state">No logs yet — upload a screenshot above.</div>';return;}
+  el.innerHTML = S.cpapLogs.slice(0,10).map(l=>`
+    <div class="history-item">
+      <div class="history-date">${l.date} at ${l.timestamp}</div>
+      <div class="history-data">${l.data.substring(0,250)}${l.data.length>250?'...':''}</div>
+    </div>`).join('');
+}
+
+async function handleFitbitUpload(event) {
+  const file = event.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result.split(',')[1];
+    document.getElementById('fitbit-img').src = e.target.result;
+    document.getElementById('fitbit-preview').style.display='block';
+    const result = document.getElementById('fitbit-ai-result');
+    result.textContent='Reading your Fitbit data...';
+    result.className='ai-result loading';
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1000,
+          messages:[{role:'user',content:[
+            {type:'image',source:{type:'base64',media_type:file.type,data:base64}},
+            {type:'text',text:'This is a Fitbit screenshot. Extract ALL visible health data — steps, heart rate, sleep duration and stages, calories, SpO2, HRV, stress score, active minutes, floors climbed, distance, battery level, anything visible. Format clearly with labels and values.'}
+          ]}]
+        })
+      });
+      const data = await resp.json();
+      const text = data.content?.find(b=>b.type==='text')?.text || 'Could not read data.';
+      result.textContent=text; result.className='ai-result';
+      S.fitbitLogs.unshift({date:todayKey(), data:text, timestamp:new Date().toLocaleTimeString()});
+      persist('fitbitLogs');
+      renderFitbitHistory();
+      renderDash();
+      toast('Fitbit data saved');
+    } catch(err) { result.textContent='Error reading image.'; result.className='ai-result'; }
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderFitbitHistory() {
+  const el = document.getElementById('fitbit-history');
+  if(!S.fitbitLogs.length){el.innerHTML='<div class="empty-state">No readings yet — upload a screenshot above.</div>';return;}
+  el.innerHTML = S.fitbitLogs.slice(0,10).map(l=>`
+    <div class="history-item">
+      <div class="history-date">${l.date} at ${l.timestamp}</div>
+      <div class="history-data">${l.data.substring(0,250)}${l.data.length>250?'...':''}</div>
+    </div>`).join('');
+}
+
+function saveProfile() {
+  S.profile = {
+    name:document.getElementById('p-name').value.trim(),
+    dob:document.getElementById('p-dob').value,
+    nhs:document.getElementById('p-nhs').value.trim(),
+    addr1:document.getElementById('p-addr1').value.trim(),
+    addr2:document.getElementById('p-addr2').value.trim(),
+    city:document.getElementById('p-city').value.trim(),
+    postcode:document.getElementById('p-postcode').value.trim(),
+    phone:document.getElementById('p-phone').value.trim(),
+  };
+  persist('profile');
+  renderProfilePreview();
+  toast('Details saved');
+}
+
+function loadProfileForm() {
+  const p=S.profile;
+  ['name','dob','nhs','addr1','addr2','city','postcode','phone'].forEach(k=>{
+    const el=document.getElementById('p-'+k); if(el) el.value=p[k]||'';
+  });
+  renderProfilePreview();
+}
+
+function renderProfilePreview() {
+  const p=S.profile;
+  const card=document.getElementById('profile-preview-card');
+  const el=document.getElementById('profile-preview');
+  if(!Object.values(p).some(v=>v)){card.style.display='none';return;}
+  card.style.display='block';
+  const addr=[p.addr1,p.addr2,p.city,p.postcode].filter(Boolean).join(', ');
+  const fields=[['Full name',p.name],['Date of birth',p.dob?new Date(p.dob).toLocaleDateString('en-GB'):''],['NHS number',p.nhs],['Address',addr],['Phone',p.phone]];
+  el.innerHTML=fields.map(([l,v])=>`<div class="profile-field"><span class="profile-field-label">${l}</span><span class="profile-field-value">${v||'<em style="color:var(--text-hint)">not set</em>'}</span></div>`).join('');
+}
+
+function renderProfileSummary() {
+  const p=S.profile;
+  const warn=document.getElementById('spec-profile-warn');
+  const sum=document.getElementById('spec-profile-summary');
+  if(!Object.values(p).some(v=>v)){warn.style.display='flex';sum.style.display='none';return;}
+  warn.style.display='none'; sum.style.display='block';
+  const addr=[p.addr1,p.addr2,p.city,p.postcode].filter(Boolean).join(', ');
+  sum.innerHTML=`<strong style="font-size:13px">Patient details included in emails</strong><br>${p.name||''}${p.dob?' · DOB: '+new Date(p.dob).toLocaleDateString('en-GB'):''}${p.nhs?' · NHS: '+p.nhs:''}${addr?'<br>'+addr:''}`;
+}
+
+function buildPatientBlock() {
+  const p=S.profile;
+  if(!Object.values(p).some(v=>v)) return '';
+  const addr=[p.addr1,p.addr2,p.city,p.postcode].filter(Boolean).join(', ');
+  return `\n\nPatient details:\nName: ${p.name||'not provided'}\nDate of birth: ${p.dob?new Date(p.dob).toLocaleDateString('en-GB'):'not provided'}\nNHS number: ${p.nhs||'not provided'}\nAddress: ${addr||'not provided'}\nPhone: ${p.phone||'not provided'}`;
+}
+
+function addSpecialist() {
+  const name=document.getElementById('spec-name').value.trim();
+  const email=document.getElementById('spec-email').value.trim();
+  if(!name||!email){alert('Name and email are required.');return;}
+  const initials=name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  S.specialists.push({id:Date.now(),name,email,date:document.getElementById('spec-date').value,notes:document.getElementById('spec-notes').value.trim(),initials});
+  persist('specialists');
+  ['spec-name','spec-email','spec-date','spec-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  renderSpecialists();
+  toast('Specialist added');
+}
+
+function removeSpecialist(id) {
+  S.specialists=S.specialists.filter(s=>s.id!==id);
+  persist('specialists');
+  renderSpecialists();
+}
+
+function renderSpecialists() {
+  const list=document.getElementById('specialists-list');
+  const sel=document.getElementById('email-spec-select');
+  if(!S.specialists.length){list.innerHTML='<div class="empty-state">No specialists added yet.</div>';sel.innerHTML='<option value="">— choose specialist —</option>';return;}
+  list.innerHTML=S.specialists.map(s=>`<div class="spec-row"><div class="spec-avatar">${s.initials}</div><div class="spec-info"><div class="spec-name">${s.name}</div><div class="spec-detail">${s.email}${s.date?' · '+s.date:''}</div></div><button class="icon-btn" onclick="removeSpecialist(${s.id})" aria-label="Remove"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div>`).join('');
+  sel.innerHTML='<option value="">— choose specialist —</option>'+S.specialists.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+async function draftEmail() {
+  const specId=parseInt(document.getElementById('email-spec-select').value);
+  const spec=S.specialists.find(s=>s.id===specId);
+  const type=document.getElementById('email-type').value;
+  const extra=document.getElementById('email-extra').value;
+  if(!spec){alert('Please select a specialist.');return;}
+  const area=document.getElementById('email-draft-area');
+  const content=document.getElementById('email-draft-content');
+  area.style.display='block';
+  content.textContent='Drafting your email...';
+  content.className='ai-result loading';
+  try {
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,
+        messages:[{role:'user',content:`Draft a professional NHS patient email.\nSpecialist: ${spec.name}\nEmail: ${spec.email}\nRequest: ${type}\n${spec.date?'Appointment: '+spec.date:''}\n${spec.notes?'Notes: '+spec.notes:''}\n${extra?'Extra: '+extra:''}${buildPatientBlock()}\nInclude a subject line. Include patient details at the bottom. Sign off with patient name if available.`}]
+      })
+    });
+    const data=await resp.json();
+    const text=data.content?.find(b=>b.type==='text')?.text||'Could not draft email.';
+    content.textContent=text; content.className='ai-result';
+    window._draftedEmail={to:spec.email,body:text};
+  } catch(e){content.textContent='Error drafting email.';content.className='ai-result';}
+}
+
+function openGmail() {
+  if(!window._draftedEmail)return;
+  window.open('https://mail.google.com/mail/?view=cm&to='+encodeURIComponent(window._draftedEmail.to)+'&body='+encodeURIComponent(window._draftedEmail.body),'_blank');
+}
+
+function copyEmail() {
+  navigator.clipboard.writeText(document.getElementById('email-draft-content').textContent).then(()=>toast('Copied to clipboard'));
+}
+
+function addNhs() {
+  const med=document.getElementById('nhs-med-name').value.trim();
+  const date=document.getElementById('nhs-date').value;
+  if(!med||!date){alert('Medication and date required.');return;}
+  S.nhsEntries.push({id:Date.now(),med,date,qty:document.getElementById('nhs-qty').value.trim()});
+  persist('nhsEntries');
+  ['nhs-med-name','nhs-date','nhs-qty'].forEach(id=>{document.getElementById(id).value='';});
+  renderNhs();
+  toast('NHS entry added');
+}
+
+function removeNhs(id) {
+  S.nhsEntries=S.nhsEntries.filter(e=>e.id!==id);
+  persist('nhsEntries');
+  renderNhs();
+}
+
+function renderNhs() {
+  const el=document.getElementById('nhs-list');
+  if(!S.nhsEntries.length){el.innerHTML='<div class="empty-state">No entries yet.</div>';return;}
+  const today=new Date(todayKey());
+  el.innerHTML=S.nhsEntries.sort((a,b)=>a.date.localeCompare(b.date)).map(e=>{
+    const diff=Math.ceil((new Date(e.date)-today)/86400000);
+    let cls='status-ok',lbl='Upcoming';
+    if(diff<0){cls='status-overdue';lbl='Overdue';}
+    else if(diff<=7){cls='status-soon';lbl=diff===0?'Due today':'Due in '+diff+'d';}
+    return `<div class="nhs-entry"><div><div class="nhs-entry-name">${e.med}</div><div class="nhs-entry-detail">${e.date}${e.qty?' · '+e.qty:''}</div></div><div style="display:flex;align-items:center;gap:8px"><span class="status-pill ${cls}">${lbl}</span><button class="icon-btn" onclick="removeNhs(${e.id})" aria-label="Remove"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div></div>`;
+  }).join('');
+}
+
+function checkDue() {
+  const today=new Date(todayKey());
+  const due=S.nhsEntries.filter(e=>Math.ceil((new Date(e.date)-today)/86400000)<=0);
+  const el=document.getElementById('nhs-due-result');
+  if(!due.length){
+    el.innerHTML='<div class="alert alert-success"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Nothing due today — you\'re all good!</div>';
+  } else {
+    el.innerHTML=due.map(e=>`<div class="alert alert-warning"><svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg><strong>${e.med}</strong> — log into NHS app to reorder</div>`).join('');
+  }
+}
+
+function sendGmailReminder(time) {
+  const meds=time==='8pm'?MEDS.evening8:MEDS.evening10;
+  const list=meds.map(m=>m.name+' — '+m.dose).join('\n');
+  const t=time==='8pm'?'8:00 pm':'10:00 pm';
+  window.open('https://mail.google.com/mail/?view=cm&su='+encodeURIComponent('Medication reminder — tonight '+t)+'&body='+encodeURIComponent(t+' medications:\n\n'+list),'_blank');
+}
+
+function exportData() {
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='HealthHub-backup-'+todayKey()+'.json';
+  a.click();
+  toast('Backup exported');
+}
+
+function importData(event) {
+  const file=event.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    try {
+      const data=JSON.parse(e.target.result);
+      Object.assign(S,data);
+      ['taken','cpapLogs','fitbitLogs','specialists','nhsEntries','profile','streak'].forEach(k=>persist(k));
+      renderDash(); renderNhs();
+      toast('Backup restored successfully');
+    } catch(err){alert('Could not read backup file.');}
+  };
+  reader.readAsText(file);
+}
+
+load();
+const now=new Date();
+document.getElementById('top-date').textContent=now.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+persist('nhsEntries');
+renderDash();
+renderNhs();
+</script>
+</body>
+</html>
