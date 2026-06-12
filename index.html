@@ -556,8 +556,8 @@ async function handleCpapUpload(event) {
     result.textContent='Reading your ResMed myAir data...';
     result.className='ai-result loading';
     try {
-      const resp = await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST', headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      const resp = await fetch('https://corsproxy.io/?url=https://api.anthropic.com/v1/messages',{
+        method:'POST', headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01'},
         body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1000,
           messages:[{role:'user',content:[
             {type:'image',source:{type:'base64',media_type:file.type,data:base64}},
@@ -599,8 +599,8 @@ async function handleFitbitUpload(event) {
     result.textContent='Reading your Fitbit data...';
     result.className='ai-result loading';
     try {
-      const resp = await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST', headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      const resp = await fetch('https://corsproxy.io/?url=https://api.anthropic.com/v1/messages',{
+        method:'POST', headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01'},
         body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1000,
           messages:[{role:'user',content:[
             {type:'image',source:{type:'base64',media_type:file.type,data:base64}},
@@ -721,8 +721,8 @@ async function draftEmail() {
   content.textContent='Drafting your email...';
   content.className='ai-result loading';
   try {
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    const resp=await fetch('https://corsproxy.io/?url=https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,
         messages:[{role:'user',content:`Draft a professional NHS patient email.\nSpecialist: ${spec.name}\nEmail: ${spec.email}\nRequest: ${type}\n${spec.date?'Appointment: '+spec.date:''}\n${spec.notes?'Notes: '+spec.notes:''}\n${extra?'Extra: '+extra:''}${buildPatientBlock()}\nInclude a subject line. Include patient details at the bottom. Sign off with patient name if available.`}]
       })
