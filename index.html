@@ -376,6 +376,12 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
       <div id="api-key-saved" style="display:none;margin-top:8px;font-size:13px;color:var(--success)">Key saved!</div>
     </div>
   </div>
+  <div class="card" style="margin-top:0">
+    <button class="btn btn-danger" onclick="clearApiKey()" style="width:100%">
+      <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+      Clear API key
+    </button>
+  </div>
 <div class="card" id="profile-preview-card" style="display:none">
     <div class="card-title">Saved details</div>
     <div id="profile-preview"></div>
