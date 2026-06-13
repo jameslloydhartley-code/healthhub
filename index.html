@@ -336,6 +336,58 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   </div>
 </div>
 
+<!-- PHARMACY PICKUPS -->
+<div id="page-pharmacy" class="page">
+  <div class="alert alert-warning">
+    <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+    <strong>Owing:</strong> 120 melatonin tablets to collect from Rowlands Pharmacy, Wythenshawe — bring your owing note slip!
+  </div>
+  <div class="card">
+    <div class="card-title">Your pharmacies</div>
+    <div style="padding:10px 0;border-bottom:1px solid #f0f0f0">
+      <div style="font-size:15px;font-weight:500">Rowlands Pharmacy</div>
+      <div style="font-size:12px;color:var(--text-secondary)">Wythenshawe Hospital, Southmoor Road, M23 9LT</div>
+      <div style="font-size:12px;color:var(--primary);margin-top:2px">0161 945 1978</div>
+      <div style="font-size:11px;color:var(--text-hint);margin-top:2px">Melatonin · Clonazepam</div>
+    </div>
+    <div style="padding:10px 0">
+      <div style="font-size:15px;font-weight:500">Tesco Pharmacy</div>
+      <div style="font-size:12px;color:var(--text-secondary)">Your local Tesco</div>
+      <div style="font-size:11px;color:var(--text-hint);margin-top:2px">Citalopram · Iron · Adcal · Lansoprazole · Topical Testosterone</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Upcoming pickups</div>
+    <div id="pickup-list"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Add a pickup</div>
+    <div class="form-group">
+      <label class="form-label">Medication(s)</label>
+      <input type="text" id="pickup-med" placeholder="e.g. Citalopram, Iron, Lansoprazole">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Pickup date</label>
+      <input type="date" id="pickup-date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Pharmacy</label>
+      <select id="pickup-pharmacy">
+        <option>Rowlands Pharmacy — Wythenshawe</option>
+        <option>Tesco Pharmacy</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input type="text" id="pickup-notes" placeholder="e.g. Bring owing note, ask for blister pack">
+    </div>
+    <button class="btn btn-primary" onclick="addPickup()">
+      <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+      Add pickup
+    </button>
+  </div>
+</div>
+
 <!-- MY DETAILS -->
 <div id="page-profile" class="page">
   <div class="alert alert-info">
@@ -413,6 +465,10 @@ select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
     NHS
   </button>
+  <button class="nav-item" onclick="showPage('pharmacy',this)">
+    <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.36C18 2.06 15.96 0 13.5 0c-1.3 0-2.43.52-3.27 1.35L9 3.08 7.77 1.35C6.93.52 5.8 0 4.5 0 2.04 0 0 2.06 0 4.64c0 .48.11.92.18 1.36H0v2h20V6zM4.5 2C4.78 2 5.04 2.06 5.28 2.17L7.2 4H1.86C2.1 2.85 3.21 2 4.5 2zm9 0c1.29 0 2.4.85 2.64 2h-5.34l1.92-1.83C13.22 2.06 13.72 2 13.5 2zM2 8v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8H2zm9 11H9v-2H7v-2h2v-2h2v2h2v2h-2v2z"/></svg>
+    Pickup
+  </button>
   <button class="nav-item" onclick="showPage('profile',this)">
     <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
     Me
@@ -483,6 +539,7 @@ function showPage(id, btn) {
   if(id==='meds') renderMeds();
   if(id==='specialists') { renderSpecialists(); renderProfileSummary(); }
   if(id==='nhs') renderNhs();
+  if(id==='pharmacy') renderPickups();
   if(id==='cpap') renderCpapHistory();
   if(id==='fitbit') renderFitbitHistory();
   if(id==='profile') loadProfileForm();
@@ -824,6 +881,81 @@ function importData(event) {
 }
 
 load();
+
+// PHARMACY PICKUPS
+let pickupDefaults = [
+  { id: 901, med: 'Melatonin (120 tablets owed)', date: '2026-06-20', pharmacy: 'Rowlands Pharmacy — Wythenshawe', notes: 'Bring owing note slip! Rx: OOA071003913287' },
+  { id: 902, med: 'Citalopram, Iron, Adcal, Lansoprazole, Topical Testosterone', date: '2026-08-01', pharmacy: 'Tesco Pharmacy', notes: 'After NHS reorder on 27 Jul' },
+  { id: 903, med: 'Clonazepam', date: '2026-09-01', pharmacy: 'Rowlands Pharmacy — Wythenshawe', notes: 'After reorder 25 Aug — check Rx renewal first' },
+];
+
+if(!S.pickups) {
+  S.pickups = pickupDefaults;
+  persist('pickups');
+}
+
+function addPickup() {
+  const med = document.getElementById('pickup-med').value.trim();
+  const date = document.getElementById('pickup-date').value;
+  const pharmacy = document.getElementById('pickup-pharmacy').value;
+  const notes = document.getElementById('pickup-notes').value.trim();
+  if(!med || !date) { alert('Medication and date required.'); return; }
+  if(!S.pickups) S.pickups = [];
+  S.pickups.push({ id: Date.now(), med, date, pharmacy, notes, collected: false });
+  persist('pickups');
+  document.getElementById('pickup-med').value = '';
+  document.getElementById('pickup-date').value = '';
+  document.getElementById('pickup-notes').value = '';
+  renderPickups();
+  toast('Pickup added');
+}
+
+function markPickupCollected(id) {
+  const p = S.pickups.find(p => p.id === id);
+  if(p) { p.collected = !p.collected; persist('pickups'); renderPickups(); }
+}
+
+function removePickup(id) {
+  S.pickups = S.pickups.filter(p => p.id !== id);
+  persist('pickups');
+  renderPickups();
+}
+
+function renderPickups() {
+  const el = document.getElementById('pickup-list');
+  if(!el) return;
+  if(!S.pickups || !S.pickups.length) { el.innerHTML = '<div class="empty-state">No pickups added yet.</div>'; return; }
+  const today = new Date(todayKey());
+  el.innerHTML = S.pickups.sort((a,b) => a.date.localeCompare(b.date)).map(p => {
+    const diff = Math.ceil((new Date(p.date) - today) / 86400000);
+    let cls = 'status-ok', lbl = 'Upcoming';
+    if(p.collected) { cls = 'status-ok'; lbl = 'Collected'; }
+    else if(diff < 0) { cls = 'status-overdue'; lbl = 'Overdue'; }
+    else if(diff === 0) { cls = 'status-soon'; lbl = 'Today!'; }
+    else if(diff <= 3) { cls = 'status-soon'; lbl = 'In ' + diff + 'd'; }
+    const pharmacyIcon = p.pharmacy.includes('Wythenshawe') ? '🏥' : '🛒';
+    return \`<div style="padding:12px 0;border-bottom:1px solid #f0f0f0">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:500;\${p.collected?'text-decoration:line-through;color:var(--text-hint)':''}">\${p.med}</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">\${pharmacyIcon} \${p.pharmacy}</div>
+          <div style="font-size:12px;color:var(--text-secondary)">\${p.date}\${p.notes?' · '+p.notes:''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <span class="status-pill \${cls}">\${lbl}</span>
+          <div style="display:flex;gap:6px">
+            <button class="icon-btn" onclick="markPickupCollected(\${p.id})" aria-label="Mark collected" title="Mark collected">
+              <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </button>
+            <button class="icon-btn" onclick="removePickup(\${p.id})" aria-label="Remove">
+              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>\`;
+  }).join('');
+}
 
 function getApiKey() {
   const stored = localStorage.getItem('hh_apikey');
